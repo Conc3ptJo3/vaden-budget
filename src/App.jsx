@@ -11,8 +11,6 @@ function groupByMonth(weeks) {
   const groups = []
   let current = null
   for (const week of weeks) {
-    const month = week.date.split(' ').slice(0, -2).join(' ').trim()
-    // e.g. "March 27, 2025" -> month label = "March 2025"
     const parts = week.date.replace(',', '').split(' ')
     const monthLabel = parts[0] + ' ' + parts[2]
     if (!current || current.month !== monthLabel) {
@@ -22,14 +20,6 @@ function groupByMonth(weeks) {
     current.weeks.push(week)
   }
   return groups
-}
-
-const MONTH_COLORS = {
-  'March 2025':  '#EEF3FD',
-  'April 2025':  '#FEF7E8',
-  'May 2025':    '#EBF8F1',
-  'June 2025':   '#F0ECFD',
-  'July 2025':   '#FEF0F0',
 }
 
 const MONTH_ACCENT = {
@@ -42,15 +32,76 @@ const MONTH_ACCENT = {
 
 export default function App() {
   const [tab, setTab] = useState(0)
-  const { weeks, addExpense, removeExpense, updateExpense, resetToDefaults } = useBudget()
-  const [confirmReset, setConfirmReset] = useState(false)
+  const {
+    weeks,
+    addExpense,
+    removeExpense,
+    updateExpense,
+    resetToDefaults,
+    isArchived,
+    toggleArchive,
+    toggleChecked,
+    isChecked,
+  } = useBudget()
 
-  const monthGroups = groupByMonth(weeks)
+  const [confirmReset, setConfirmReset] = useState(false)
+  const [showArchived, setShowArchived] = useState(false)
+
+  const activeWeeks = weeks.filter(w => !isArchived(w))
+  const archivedWeeks = weeks.filter(w => isArchived(w))
+
+  const activeGroups = groupByMonth(activeWeeks)
+  const archivedGroups = groupByMonth(archivedWeeks)
+
+  function renderMonthGroup(group, archived = false) {
+    return (
+      <div key={group.month} style={{ marginBottom: 28 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+          <div style={{
+            width: 8, height: 8, borderRadius: '50%',
+            background: archived ? '#CBD3E8' : (MONTH_ACCENT[group.month] || '#CBD3E8'),
+            flexShrink: 0,
+          }} />
+          <h2 style={{
+            fontSize: 14, fontWeight: 700,
+            color: archived ? 'var(--text3)' : 'var(--text)',
+            letterSpacing: '-0.01em',
+          }}>
+            {group.month}
+          </h2>
+          <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
+          <span style={{ fontSize: 11, color: 'var(--text3)' }}>
+            {group.weeks.length} paycheck{group.weeks.length !== 1 ? 's' : ''}
+          </span>
+        </div>
+
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+          gap: 8,
+        }}>
+          {group.weeks.map(week => (
+            <WeekCard
+              key={week.id}
+              week={week}
+              onAddExpense={addExpense}
+              onRemoveExpense={removeExpense}
+              onUpdateExpense={updateExpense}
+              onToggleChecked={toggleChecked}
+              isChecked={(wid, eid) => isChecked(wid, eid)}
+              isArchived={isArchived(week)}
+              onToggleArchive={toggleArchive}
+            />
+          ))}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <PasswordGate>
       <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
-        {/* Top bar — light */}
+        {/* Top bar */}
         <div style={{
           background: '#fff',
           borderBottom: '1px solid var(--border)',
@@ -95,43 +146,62 @@ export default function App() {
           {tab === 0 && (
             <>
               <SummaryBar weeks={weeks} />
-              {monthGroups.map(group => (
-                <div key={group.month} style={{ marginBottom: 32 }}>
-                  {/* Month header */}
-                  <div style={{
-                    display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12,
-                  }}>
-                    <div style={{
-                      width: 10, height: 10, borderRadius: '50%',
-                      background: MONTH_ACCENT[group.month] || '#CBD3E8', flexShrink: 0,
-                    }} />
-                    <h2 style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)', letterSpacing: '-0.01em' }}>
-                      {group.month}
-                    </h2>
-                    <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
-                    <span style={{ fontSize: 12, color: 'var(--text3)' }}>
-                      {group.weeks.length} paycheck{group.weeks.length !== 1 ? 's' : ''}
-                    </span>
-                  </div>
 
-                  {/* Two-column grid */}
-                  <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-                    gap: 10,
-                  }}>
-                    {group.weeks.map(week => (
-                      <WeekCard
-                        key={week.id}
-                        week={week}
-                        onAddExpense={addExpense}
-                        onRemoveExpense={removeExpense}
-                        onUpdateExpense={updateExpense}
-                      />
-                    ))}
+              {/* Active weeks */}
+              {activeGroups.length > 0
+                ? activeGroups.map(g => renderMonthGroup(g, false))
+                : (
+                  <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text3)', fontSize: 13 }}>
+                    All weeks are archived.
                   </div>
+                )
+              }
+
+              {/* Archived weeks toggle */}
+              {archivedWeeks.length > 0 && (
+                <div style={{ marginTop: 8 }}>
+                  <button
+                    onClick={() => setShowArchived(v => !v)}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 8,
+                      background: 'none', border: '1px solid var(--border)',
+                      borderRadius: 8, padding: '8px 14px',
+                      fontSize: 13, color: 'var(--text3)', cursor: 'pointer',
+                      width: '100%', marginBottom: showArchived ? 16 : 0,
+                      transition: 'background 0.15s',
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.background = '#F0F3FA'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                  >
+                    <span style={{ fontSize: 14 }}>🗂</span>
+                    <span style={{ fontWeight: 500 }}>
+                      {showArchived ? 'Hide' : 'Show'} archived weeks
+                    </span>
+                    <span style={{
+                      marginLeft: 4, fontSize: 11, fontWeight: 500,
+                      background: '#E4E8F0', color: '#5A6278',
+                      borderRadius: 99, padding: '1px 7px',
+                    }}>
+                      {archivedWeeks.length}
+                    </span>
+                    <span style={{
+                      marginLeft: 'auto', fontSize: 10, color: 'var(--text3)',
+                      transform: showArchived ? 'rotate(180deg)' : 'none',
+                      transition: 'transform 0.2s',
+                    }}>▼</span>
+                  </button>
+
+                  {showArchived && (
+                    <div style={{
+                      borderLeft: '2px solid var(--border)',
+                      paddingLeft: 16,
+                      opacity: 0.85,
+                    }}>
+                      {archivedGroups.map(g => renderMonthGroup(g, true))}
+                    </div>
+                  )}
                 </div>
-              ))}
+              )}
             </>
           )}
           {tab === 1 && <DebtTracker />}
