@@ -255,6 +255,23 @@ export function useBudget() {
     ))
   }
 
+  function addDebt(name, balance, apr, min, note) {
+    const newDebt = {
+      id: 'debt-' + Date.now(),
+      name,
+      balance: parseFloat(balance) || 0,
+      apr: apr || '0%',
+      min: parseFloat(min) || 0,
+      note: note || '',
+      priority: 99,
+    }
+    setDebts(prev => [...prev, newDebt])
+  }
+
+  function removeDebt(debtId) {
+    setDebts(prev => prev.filter(d => d.id !== debtId))
+  }
+
   function updateBill(billId, field, value) {
     setBillSchedule(prev => {
       const updated = prev.map(b =>
@@ -314,7 +331,7 @@ export function useBudget() {
     generateNextMonthWeeks, resetToDefaults,
     isArchived, toggleArchive,
     toggleChecked, isChecked,
-    updateDebt,
+    updateDebt, addDebt, removeDebt,
     updateBill, addBill, removeBill,
   }
 }

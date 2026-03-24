@@ -55,7 +55,7 @@ export default function App() {
     generateNextMonthWeeks, resetToDefaults,
     isArchived, toggleArchive,
     toggleChecked, isChecked,
-    updateDebt,
+    updateDebt, addDebt, removeDebt,
     updateBill, addBill, removeBill,
   } = useBudget()
 
@@ -276,7 +276,7 @@ export default function App() {
           )}
 
           {tab === 1 && (
-            <DebtTracker debts={debts} onUpdateDebt={updateDebt} />
+            <DebtTracker debts={debts} onUpdateDebt={updateDebt} onAddDebt={addDebt} onRemoveDebt={removeDebt} />
           )}
 
           {tab === 2 && (
