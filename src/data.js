@@ -294,7 +294,7 @@ export function generateNextMonth(lastWeekDate, existingWeekIds) {
 
     const billsThisWeek = BILL_SCHEDULE.filter(bill => {
       const d = bill.day
-      // Handle month-wrap for window
+      // Handle month-wrap for window -
       const daysInMonth = new Date(year, month, 0).getDate()
       if (windowEnd > daysInMonth) {
         // window wraps to next month
