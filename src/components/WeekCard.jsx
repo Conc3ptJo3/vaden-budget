@@ -277,7 +277,7 @@ export default function WeekCard({
             </button>
           </form>
 
-          {/* Remaining bar */}
+          {/* Remaining */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', borderRadius: 8, background: rc.bg, border: `1px solid ${rc.border}` }}>
             <span style={{ fontSize: 13, fontWeight: 500, color: rc.fg }}>
               {rem < 0 ? 'Over budget' : rem < 100 ? 'Running tight' : 'Remaining'}
