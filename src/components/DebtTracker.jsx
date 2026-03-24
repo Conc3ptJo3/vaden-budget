@@ -9,12 +9,12 @@ const PRIORITY_COLORS = [
 ]
 
 const TIPS = [
-  { title: 'Call Discover — ask for APR cut', body: 'Call the number on your card and ask to lower your rate. They do this quietly and often say yes. 22.5% → 18% saves ~$170/yr.' },
+  { title: 'Call Discover - ask for APR cut', body: 'Call the number on your card and ask to lower your rate. They do this quietly and often say yes. 22.5% → 18% saves ~$170/yr.' },
   { title: '0% Balance Transfer', body: 'Move the Discover balance to a 0% intro APR card (18–21 months). 3% fee = ~$115 one-time vs. hundreds in interest. Worth 20 min of research.' },
   { title: 'Automate all minimums', body: 'Set every bill to autopay the minimum so you never miss. One missed payment triggers penalty rates and hurts your credit score. Throw extra cash manually at your #1 target.' },
   { title: 'Build a $500 floor', body: "Your paychecks often end with $55–$160 remaining. One repair bill and you're reaching for a card. Park $500 untouched in a separate account as your true emergency buffer." },
-  { title: 'High-Yield Savings (HYSA)', body: 'Ally, Marcus, or SoFi pay 4–5% APY on savings. Move your emergency fund there — earns real money sitting still. Takes 5 min to open.' },
-  { title: 'Snowball momentum', body: "Once CareCredit is gone, roll that $90/mo autopay + all your extra payments into Discover. Each payoff funds the next one faster — this is how it accelerates." },
+  { title: 'High-Yield Savings (HYSA)', body: 'Ally, Marcus, or SoFi pay 4–5% APY on savings. Move your emergency fund there - earns real money sitting still. Takes 5 min to open.' },
+  { title: 'Snowball momentum', body: "Once CareCredit is gone, roll that $90/mo autopay + all your extra payments into Discover. Each payoff funds the next one faster - this is how it accelerates." },
 ]
 
 function EditableField({ value, onSave, prefix = '', isMoney = false }) {
@@ -101,7 +101,7 @@ export default function DebtTracker({ debts, onUpdateDebt }) {
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: 12, fontWeight: 600, flexShrink: 0, marginTop: 1,
                 }}>
-                  {d.priority === 0 ? '—' : d.priority}
+                  {d.priority === 0 ? '-' : d.priority}
                 </div>
 
                 <div style={{ flex: 1, minWidth: 0 }}>
@@ -128,7 +128,7 @@ export default function DebtTracker({ debts, onUpdateDebt }) {
                       <strong>
                         {d.min > 0
                           ? <EditableField value={d.min} isMoney={true} onSave={v => onUpdateDebt(d.id, 'min', v)} />
-                          : '—'}
+                          : '-'}
                       </strong>
                     </span>
                   </div>

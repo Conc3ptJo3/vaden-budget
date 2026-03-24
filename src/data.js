@@ -1,7 +1,7 @@
 export const INCOME = 1760
 export const BONUS = 1000
 
-// Bill schedule — day of month each bill is due, used for auto-generating weeks
+// Bill schedule - day of month each bill is due, used for auto-generating weeks
 // day: which paycheck week it falls in (1=1st paycheck, 2=2nd, 3=3rd, 4=4th of month)
 // For perpetual generation, bills are assigned to the nearest paycheck on/after their due date
 export const BILL_SCHEDULE = [
@@ -32,11 +32,11 @@ export const INITIAL_WEEKS = [
   {
     id: 'w1',
     date: 'March 27, 2026',
-    label: 'End of March — Bonus Month',
+    label: 'End of March - Bonus Month',
     type: 'bonus',
     bonusIncome: BONUS,
     bonusExpense: { name: 'Rent (1st)', amount: 1000 },
-    note: 'Runs -$27 vs original — birthday + all bills hit at once.',
+    note: 'Runs -$27 vs original - birthday + all bills hit at once.',
     expenses: [
       { id: 'e1',  name: 'Weed',                         amount: 100 },
       { id: 'e2',  name: 'Food',                         amount: 300 },
@@ -55,7 +55,7 @@ export const INITIAL_WEEKS = [
     date: 'April 3, 2026',
     label: '',
     type: 'normal',
-    note: 'Kay clears Apr 6 — slight timing buffer.',
+    note: 'Kay clears Apr 6 - slight timing buffer.',
     expenses: [
       { id: 'e1', name: 'Weed',               amount: 100 },
       { id: 'e2', name: 'Food',               amount: 300 },
@@ -84,7 +84,7 @@ export const INITIAL_WEEKS = [
     date: 'April 17, 2026',
     label: 'Progressive Leasing Payoff',
     type: 'payoff',
-    note: 'Progressive Leasing done — frees $20/mo going forward.',
+    note: 'Progressive Leasing done - frees $20/mo going forward.',
     expenses: [
       { id: 'e1', name: 'Weed',                        amount: 100 },
       { id: 'e2', name: 'Food',                        amount: 300 },
@@ -98,11 +98,11 @@ export const INITIAL_WEEKS = [
   {
     id: 'w5',
     date: 'April 24, 2026',
-    label: 'End of April — Bonus Month',
+    label: 'End of April - Bonus Month',
     type: 'bonus',
     bonusIncome: BONUS,
     bonusExpense: { name: 'Rent (remainder)', amount: 1000 },
-    note: 'Runs -$28 vs $1,760 — watch this one.',
+    note: 'Runs -$28 vs $1,760 - watch this one.',
     expenses: [
       { id: 'e1', name: 'Weed',               amount: 100 },
       { id: 'e2', name: 'Food',               amount: 300 },
@@ -117,7 +117,7 @@ export const INITIAL_WEEKS = [
     date: 'May 1, 2026',
     label: 'Wisdom Teeth Savings Push',
     type: 'savings',
-    note: 'Surgery one week away — final savings push.',
+    note: 'Surgery one week away - final savings push.',
     expenses: [
       { id: 'e1',  name: 'Weed',               amount: 100 },
       { id: 'e2',  name: 'Food',               amount: 300 },
@@ -147,7 +147,7 @@ export const INITIAL_WEEKS = [
   {
     id: 'w8',
     date: 'May 15, 2026',
-    label: 'Post-Surgery — CareCredit Attack Begins',
+    label: 'Post-Surgery - CareCredit Attack Begins',
     type: 'payoff',
     note: 'CareCredit extra payments start May 22.',
     expenses: [
@@ -174,7 +174,7 @@ export const INITIAL_WEEKS = [
   {
     id: 'w10',
     date: 'May 29, 2026',
-    label: 'End of May — Bonus Month',
+    label: 'End of May - Bonus Month',
     type: 'bonus',
     bonusIncome: BONUS,
     bonusExpense: { name: 'Rent (remainder)', amount: 1000 },
@@ -221,7 +221,7 @@ export const INITIAL_WEEKS = [
   {
     id: 'w13',
     date: 'June 19, 2026',
-    label: 'CareCredit — Finish It',
+    label: 'CareCredit - Finish It',
     type: 'payoff',
     note: 'CareCredit paid off. Pivot fully to Discover.',
     expenses: [
@@ -235,7 +235,7 @@ export const INITIAL_WEEKS = [
   {
     id: 'w14',
     date: 'June 26, 2026',
-    label: 'End of June — Bonus Month',
+    label: 'End of June - Bonus Month',
     type: 'bonus',
     bonusIncome: BONUS,
     bonusExpense: { name: 'Rent (remainder)', amount: 1000 },
@@ -257,7 +257,7 @@ export const INITIAL_WEEKS = [
     date: 'July 3, 2026',
     label: 'Discover Full Attack Mode',
     type: 'payoff',
-    note: 'Most bills hit other weeks — throw everything at Discover.',
+    note: 'Most bills hit other weeks - throw everything at Discover.',
     expenses: [
       { id: 'e1', name: 'Weed',                   amount: 100  },
       { id: 'e2', name: 'Food',                   amount: 300  },
@@ -267,11 +267,11 @@ export const INITIAL_WEEKS = [
 ]
 
 export const INITIAL_DEBTS = [
-  { id: 'd1', name: 'Kay',             balance: 550,   apr: '33%',     min: 100, note: '$100/mo min until done — nearly there',     priority: 0 },
-  { id: 'd2', name: 'CareCredit Lisa', balance: 2346,  apr: '0% promo', min: 90,  note: 'Deferred interest — kill before promo ends', priority: 1 },
+  { id: 'd1', name: 'Kay',             balance: 550,   apr: '33%',     min: 100, note: '$100/mo min until done - nearly there',     priority: 0 },
+  { id: 'd2', name: 'CareCredit Lisa', balance: 2346,  apr: '0% promo', min: 90,  note: 'Deferred interest - kill before promo ends', priority: 1 },
   { id: 'd3', name: 'CareCredit Joe',  balance: 1467,  apr: '0% promo', min: 0,   note: 'Treat as one ~$3,813 combined balance',       priority: 1 },
   { id: 'd4', name: 'Discover',        balance: 3841,  apr: '22.5%',   min: 100, note: 'Pay to $1,000 then min while attacking Van',  priority: 2 },
-  { id: 'd5', name: 'Van Loan',        balance: 15600, apr: '~6.5%',   min: 500, note: 'Lowest rate — attack last',                   priority: 3 },
+  { id: 'd5', name: 'Van Loan',        balance: 15600, apr: '~6.5%',   min: 500, note: 'Lowest rate - attack last',                   priority: 3 },
 ]
 
 // Given the last week's date, generate the next 4 weeks with scheduled bills
@@ -312,7 +312,7 @@ export function generateNextMonth(lastWeekDate, existingWeekIds) {
     const dateStr = weekDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
     const id = 'w-gen-' + dateStr.replace(/[^a-z0-9]/gi, '-').toLowerCase()
 
-    // Build expenses — always include weekly staples
+    // Build expenses - always include weekly staples
     const expenses = [
       { id: 'eg-weed-' + i, name: 'Weed', amount: 100 },
       { id: 'eg-food-' + i, name: 'Food', amount: 300 },
@@ -334,11 +334,11 @@ export function generateNextMonth(lastWeekDate, existingWeekIds) {
     newWeeks.push({
       id,
       date: dateStr,
-      label: isEndOfMonth ? 'End of Month — Bonus' : '',
+      label: isEndOfMonth ? 'End of Month - Bonus' : '',
       type: isEndOfMonth ? 'bonus' : 'normal',
       bonusIncome: isEndOfMonth ? BONUS : undefined,
       bonusExpense: isEndOfMonth ? { name: 'Rent (remainder)', amount: 1000 } : undefined,
-      note: 'Auto-generated — edit as needed.',
+      note: 'Auto-generated - edit as needed.',
       expenses: dedupedExpenses,
     })
   }

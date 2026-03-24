@@ -1,4 +1,4 @@
-# Budget App — Joe & Lisa
+# Budget App - Joe & Lisa
 
 A personal budget tracker with week-by-week paycheck breakdowns, live expense editing, and a debt payoff plan.
 
@@ -26,7 +26,7 @@ git push -u origin main
 1. Go to [vercel.com](https://vercel.com) and sign up with your GitHub account
 2. Click **Add New Project**
 3. Import your `budget-app` repository
-4. Leave all settings as default — Vercel auto-detects Vite
+4. Leave all settings as default - Vercel auto-detects Vite
 5. Click **Deploy**
 
 Your app will be live in about 60 seconds at a `*.vercel.app` URL.
@@ -54,14 +54,14 @@ App runs at `http://localhost:5173`
 ## How it works
 
 - All changes save automatically to the browser's localStorage
-- Works on any device — phone, tablet, desktop
+- Works on any device - phone, tablet, desktop
 - Changes on one device don't sync to another (no server/database)
 - Use the **Reset** button in the top-right to restore original data
 
 ### Adding expenses
 1. Tap any paycheck row to expand it
 2. Type the expense name and dollar amount at the bottom
-3. Tap **+ Add** — the remaining balance updates instantly
+3. Tap **+ Add** - the remaining balance updates instantly
 
 ### Editing expenses
 - Tap any expense name or amount to edit it inline
@@ -73,6 +73,6 @@ App runs at `http://localhost:5173`
 ## Want real-time sync between your phone and Lisa's?
 
 If you want changes on one device to show up on the other, that requires a backend database. Options:
-- **Firebase** (free tier) — I can add this later
-- **Supabase** (free tier) — same
+- **Firebase** (free tier) - I can add this later
+- **Supabase** (free tier) - same
 - Both take about 30 min to wire up

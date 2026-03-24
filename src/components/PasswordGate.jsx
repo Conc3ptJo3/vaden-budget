@@ -41,7 +41,7 @@ export default function PasswordGate({ children }) {
           margin: '0 auto 20px', fontSize: 22,
         }}>🔒</div>
         <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--text)', marginBottom: 6 }}>
-          Budget — Joe & Lisa
+          Budget - Joe & Lisa
         </h1>
         <p style={{ fontSize: 13, color: 'var(--text3)', marginBottom: 28 }}>
           Enter your password to continue
