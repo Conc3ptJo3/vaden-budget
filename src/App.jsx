@@ -34,6 +34,16 @@ const MONTH_ACCENT = {
   'October 2025':   '#1D8A4E',
   'November 2025':  '#6B4FCF',
   'December 2025':  '#D63B3B',
+  'March 2026':     '#3D6FE8',
+  'April 2026':     '#C47B0A',
+  'May 2026':       '#1D8A4E',
+  'June 2026':      '#6B4FCF',
+  'July 2026':      '#D63B3B',
+  'August 2026':    '#3D6FE8',
+  'September 2026': '#C47B0A',
+  'October 2026':   '#1D8A4E',
+  'November 2026':  '#6B4FCF',
+  'December 2026':  '#D63B3B',
 }
 
 export default function App() {
@@ -81,7 +91,7 @@ export default function App() {
           </span>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 8 }}>
+        <div className="week-grid">
           {group.weeks.map(week => (
             <WeekCard
               key={week.id}
@@ -110,6 +120,19 @@ export default function App() {
 
   return (
     <PasswordGate>
+      <style>{`
+        .week-grid {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 8px;
+        }
+        @media (max-width: 600px) {
+          .week-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+      `}</style>
+
       <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
         {/* Top bar */}
         <div style={{
@@ -118,8 +141,8 @@ export default function App() {
           position: 'sticky', top: 0, zIndex: 100,
           boxShadow: '0 1px 4px rgba(30,40,80,0.07)',
         }}>
-          <div style={{ maxWidth: 960, margin: '0 auto', padding: '0 24px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 14 }}>
+          <div style={{ maxWidth: 960, margin: '0 auto', padding: '0 16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 12 }}>
               <div>
                 <h1 style={{ fontSize: 17, fontWeight: 700, color: 'var(--text)', letterSpacing: '-0.01em' }}>Budget</h1>
                 <p style={{ fontSize: 11, color: 'var(--text3)', marginTop: 1 }}>Joe & Lisa · $1,760/wk</p>
@@ -128,18 +151,19 @@ export default function App() {
                 onClick={() => setConfirmReset(true)}
                 style={{
                   background: 'transparent', border: '1px solid var(--border2)',
-                  color: 'var(--text2)', borderRadius: 7, padding: '5px 12px',
-                  fontSize: 12, cursor: 'pointer',
+                  color: 'var(--text2)', borderRadius: 7, padding: '6px 14px',
+                  fontSize: 13, cursor: 'pointer',
                 }}
               >Reset</button>
             </div>
-            <div style={{ display: 'flex', gap: 2, marginTop: 12 }}>
+            <div style={{ display: 'flex', gap: 0, marginTop: 10 }}>
               {TABS.map((t, i) => (
                 <button
                   key={t}
                   onClick={() => setTab(i)}
                   style={{
-                    padding: '8px 16px', fontSize: 13, fontWeight: tab === i ? 600 : 400,
+                    flex: 1,
+                    padding: '10px 8px', fontSize: 13, fontWeight: tab === i ? 600 : 400,
                     color: tab === i ? 'var(--blue)' : 'var(--text3)',
                     background: 'transparent', border: 'none', cursor: 'pointer',
                     borderBottom: tab === i ? '2px solid var(--blue)' : '2px solid transparent',
@@ -152,14 +176,12 @@ export default function App() {
         </div>
 
         {/* Content */}
-        <div style={{ maxWidth: 960, margin: '0 auto', padding: '28px 24px 80px' }}>
+        <div style={{ maxWidth: 960, margin: '0 auto', padding: '20px 16px 80px' }}>
 
-          {/* ── PAYCHECKS TAB ─────────────────────────────── */}
           {tab === 0 && (
             <>
               <SummaryBar weeks={weeks} />
 
-              {/* Active weeks */}
               {activeGroups.length > 0
                 ? activeGroups.map(g => renderMonthGroup(g, false))
                 : (
@@ -169,12 +191,11 @@ export default function App() {
                 )
               }
 
-              {/* Generate next month button */}
               <div style={{ marginTop: 4, marginBottom: 20 }}>
                 <button
                   onClick={handleGenerate}
                   style={{
-                    width: '100%', padding: '12px 16px',
+                    width: '100%', padding: '14px 16px',
                     background: justGenerated ? '#EBF8F1' : '#3D6FE8',
                     color: justGenerated ? '#1D8A4E' : '#fff',
                     border: justGenerated ? '1px solid #A8DFC0' : 'none',
@@ -202,7 +223,6 @@ export default function App() {
                 </p>
               </div>
 
-              {/* Archived weeks toggle */}
               {archivedWeeks.length > 0 && (
                 <div>
                   <button
@@ -210,7 +230,7 @@ export default function App() {
                     style={{
                       display: 'flex', alignItems: 'center', gap: 8,
                       background: 'none', border: '1px solid var(--border)',
-                      borderRadius: 8, padding: '8px 14px',
+                      borderRadius: 8, padding: '10px 14px',
                       fontSize: 13, color: 'var(--text3)', cursor: 'pointer',
                       width: '100%', marginBottom: showArchived ? 16 : 0,
                     }}
@@ -245,16 +265,13 @@ export default function App() {
             </>
           )}
 
-          {/* ── DEBT TAB ───────────────────────────────────── */}
           {tab === 1 && (
             <DebtTracker debts={debts} onUpdateDebt={updateDebt} />
           )}
 
-          {/* ── BILLS TAB ──────────────────────────────────── */}
           {tab === 2 && <BillSchedule />}
         </div>
 
-        {/* Reset modal */}
         {confirmReset && (
           <div style={{
             position: 'fixed', inset: 0, background: 'rgba(26,31,54,0.4)',
@@ -272,11 +289,11 @@ export default function App() {
               </p>
               <div style={{ display: 'flex', gap: 8 }}>
                 <button onClick={() => setConfirmReset(false)} style={{
-                  flex: 1, padding: '9px', borderRadius: 8, border: '1px solid var(--border2)',
+                  flex: 1, padding: '11px', borderRadius: 8, border: '1px solid var(--border2)',
                   background: '#fff', fontSize: 13, cursor: 'pointer', color: 'var(--text)',
                 }}>Cancel</button>
                 <button onClick={() => { resetToDefaults(); setConfirmReset(false) }} style={{
-                  flex: 1, padding: '9px', borderRadius: 8, border: 'none',
+                  flex: 1, padding: '11px', borderRadius: 8, border: 'none',
                   background: '#D63B3B', color: '#fff', fontSize: 13, cursor: 'pointer', fontWeight: 500,
                 }}>Reset</button>
               </div>

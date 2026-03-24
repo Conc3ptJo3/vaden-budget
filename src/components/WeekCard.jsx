@@ -61,7 +61,7 @@ export default function WeekCard({
       border: `1px solid ${isArchived ? '#E4E8F0' : 'var(--border)'}`,
       boxShadow: isArchived ? 'none' : 'var(--shadow-sm)',
       overflow: 'hidden',
-      marginBottom: 8,
+      marginBottom: 0,
       opacity: isArchived ? 0.75 : 1,
       transition: 'opacity 0.2s',
     }}>
@@ -69,11 +69,12 @@ export default function WeekCard({
       <div
         onClick={() => setOpen(o => !o)}
         style={{
-          display: 'flex', alignItems: 'center', gap: 10,
-          padding: '11px 14px 11px 16px', cursor: 'pointer',
+          display: 'flex', alignItems: 'center', gap: 8,
+          padding: '12px 12px 12px 14px', cursor: 'pointer',
           borderLeft: `3px solid ${isArchived ? '#CBD3E8' : tc.accent}`,
           background: open ? '#F8F9FD' : (isArchived ? '#F7F8FC' : 'var(--surface)'),
           userSelect: 'none',
+          minHeight: 48,
         }}
       >
         {/* Archive toggle icon */}
@@ -82,49 +83,52 @@ export default function WeekCard({
           title={isArchived ? 'Unarchive week' : 'Archive week'}
           style={{
             background: 'none', border: 'none', cursor: 'pointer',
-            padding: '2px 4px', borderRadius: 4, flexShrink: 0,
+            padding: '4px', borderRadius: 4, flexShrink: 0,
             color: isArchived ? '#9BA3B8' : '#CBD3E8',
-            fontSize: 13, lineHeight: 1,
+            fontSize: 14, lineHeight: 1,
             transition: 'color 0.15s',
+            minWidth: 28, minHeight: 28,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}
-          onMouseEnter={e => e.currentTarget.style.color = isArchived ? '#3D6FE8' : '#9BA3B8'}
-          onMouseLeave={e => e.currentTarget.style.color = isArchived ? '#9BA3B8' : '#CBD3E8'}
         >
           {isArchived ? '📂' : '🗂'}
         </button>
 
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8, minWidth: 0, opacity: headerOpacity }}>
-          <span style={{ fontSize: 13, fontWeight: 600, color: isArchived ? 'var(--text2)' : 'var(--text)', whiteSpace: 'nowrap' }}>
-            {week.date}
-          </span>
-          {tc.badgeLabel && !isArchived && (
-            <span style={{
-              fontSize: 10, fontWeight: 500, padding: '2px 7px', borderRadius: 99,
-              background: tc.badgeBg, color: tc.badgeFg,
-              border: `1px solid ${tc.accentBorder}`, whiteSpace: 'nowrap', flexShrink: 0,
-            }}>
-              {tc.badgeLabel}
+        {/* Date + badges - left side, truncates if needed */}
+        <div style={{ flex: 1, minWidth: 0, opacity: headerOpacity }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 13, fontWeight: 600, color: isArchived ? 'var(--text2)' : 'var(--text)', whiteSpace: 'nowrap' }}>
+              {week.date}
             </span>
-          )}
-          {/* Check progress pill */}
-          {checkedCount > 0 && (
-            <span style={{
-              fontSize: 10, fontWeight: 500, padding: '2px 7px', borderRadius: 99,
-              background: allChecked ? '#EBF8F1' : '#F0F3FA',
-              color: allChecked ? '#1D8A4E' : '#5A6278',
-              border: `1px solid ${allChecked ? '#A8DFC0' : '#CBD3E8'}`,
-              whiteSpace: 'nowrap', flexShrink: 0,
-            }}>
-              {allChecked ? '✓ all paid' : `${checkedCount}/${totalCount} paid`}
-            </span>
-          )}
+            {tc.badgeLabel && !isArchived && (
+              <span style={{
+                fontSize: 10, fontWeight: 500, padding: '2px 6px', borderRadius: 99,
+                background: tc.badgeBg, color: tc.badgeFg,
+                border: `1px solid ${tc.accentBorder}`, whiteSpace: 'nowrap',
+              }}>
+                {tc.badgeLabel}
+              </span>
+            )}
+            {checkedCount > 0 && (
+              <span style={{
+                fontSize: 10, fontWeight: 500, padding: '2px 6px', borderRadius: 99,
+                background: allChecked ? '#EBF8F1' : '#F0F3FA',
+                color: allChecked ? '#1D8A4E' : '#5A6278',
+                border: `1px solid ${allChecked ? '#A8DFC0' : '#CBD3E8'}`,
+                whiteSpace: 'nowrap',
+              }}>
+                {allChecked ? '✓ all paid' : `${checkedCount}/${totalCount}`}
+              </span>
+            )}
+          </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0, opacity: headerOpacity }}>
+        {/* Remaining pill + chevron - always right-aligned, never shrinks */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0, opacity: headerOpacity }}>
           <span style={{
-            fontSize: 12, fontWeight: 600, padding: '2px 9px', borderRadius: 99,
+            fontSize: 12, fontWeight: 600, padding: '3px 9px', borderRadius: 99,
             background: rc.bg, color: rc.fg, border: `1px solid ${rc.border}`,
-            fontFamily: 'DM Mono, monospace',
+            fontFamily: 'DM Mono, monospace', whiteSpace: 'nowrap',
           }}>{fmt(rem)}</span>
           <span style={{
             color: 'var(--text3)', fontSize: 9,
@@ -135,7 +139,7 @@ export default function WeekCard({
       </div>
 
       {open && (
-        <div style={{ padding: '14px 16px 16px', borderTop: '1px solid var(--border)' }}>
+        <div style={{ padding: '12px 14px 14px', borderTop: '1px solid var(--border)' }}>
           {/* Income row */}
           <div style={{
             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
@@ -167,21 +171,20 @@ export default function WeekCard({
               return (
                 <div key={exp.id} style={{
                   display: 'flex', alignItems: 'center', gap: 8,
-                  padding: '6px 10px', borderRadius: 6, marginBottom: 2,
+                  padding: '8px 10px', borderRadius: 6, marginBottom: 2,
                   background: isEditing ? '#EEF3FD' : rowBg,
                   border: isEditing ? '1px solid #C7D7F9' : '1px solid transparent',
-                  transition: 'background 0.15s',
+                  minHeight: 40,
                 }}>
-                  {/* Checkmark button */}
+                  {/* Checkmark button - bigger tap target on mobile */}
                   <button
                     onClick={() => onToggleChecked(week.id, exp.id)}
-                    title={checked ? 'Mark unpaid' : 'Mark paid'}
                     style={{
-                      width: 20, height: 20, borderRadius: 5, flexShrink: 0,
+                      width: 24, height: 24, borderRadius: 6, flexShrink: 0,
                       border: checked ? '2px solid #1D8A4E' : '2px solid #CBD3E8',
                       background: checked ? '#1D8A4E' : 'transparent',
                       cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 11, color: '#fff', transition: 'all 0.15s', padding: 0,
+                      fontSize: 12, color: '#fff', transition: 'all 0.15s', padding: 0,
                     }}
                   >
                     {checked ? '✓' : ''}
@@ -196,9 +199,9 @@ export default function WeekCard({
                       <span style={{ color: 'var(--text3)', fontSize: 13 }}>$</span>
                       <input type="number" value={exp.amount}
                         onChange={e => onUpdateExpense(week.id, exp.id, 'amount', e.target.value)}
-                        style={{ width: 66, fontSize: 13, border: 'none', background: 'transparent', outline: 'none', textAlign: 'right', fontFamily: 'DM Mono, monospace', color: 'var(--text)' }} />
+                        style={{ width: 60, fontSize: 13, border: 'none', background: 'transparent', outline: 'none', textAlign: 'right', fontFamily: 'DM Mono, monospace', color: 'var(--text)' }} />
                       <button onClick={() => setEditingId(null)}
-                        style={{ background: '#3D6FE8', color: '#fff', border: 'none', borderRadius: 5, padding: '3px 8px', fontSize: 11, cursor: 'pointer' }}>
+                        style={{ background: '#3D6FE8', color: '#fff', border: 'none', borderRadius: 5, padding: '4px 8px', fontSize: 11, cursor: 'pointer' }}>
                         done
                       </button>
                     </>
@@ -206,14 +209,12 @@ export default function WeekCard({
                     <>
                       <span
                         onClick={() => setEditingId(exp.id)}
-                        title="Click to edit"
                         style={{
                           flex: 1, fontSize: 13, color: nameFg,
                           fontWeight: sav || debt ? 500 : 400,
                           cursor: 'text',
                           textDecoration: checked ? 'line-through' : 'none',
                           opacity: checked ? 0.6 : 1,
-                          transition: 'opacity 0.15s',
                         }}
                       >{exp.name}</span>
                       <span
@@ -223,13 +224,16 @@ export default function WeekCard({
                           fontFamily: 'DM Mono, monospace', cursor: 'text',
                           textDecoration: checked ? 'line-through' : 'none',
                           opacity: checked ? 0.6 : 1,
+                          flexShrink: 0,
                         }}
                       >{fmt(exp.amount)}</span>
                       <button
                         onClick={() => onRemoveExpense(week.id, exp.id)}
-                        style={{ background: 'none', border: 'none', color: '#CBD3E8', cursor: 'pointer', fontSize: 16, lineHeight: 1, padding: '0 2px' }}
-                        onMouseEnter={e => e.currentTarget.style.color = '#D63B3B'}
-                        onMouseLeave={e => e.currentTarget.style.color = '#CBD3E8'}
+                        style={{
+                          background: 'none', border: 'none', color: '#CBD3E8', cursor: 'pointer',
+                          fontSize: 18, lineHeight: 1, padding: '0 4px',
+                          minWidth: 28, minHeight: 28, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        }}
                         title="Remove"
                       >×</button>
                     </>
@@ -254,7 +258,7 @@ export default function WeekCard({
           )}
 
           {/* Add expense form */}
-          <form onSubmit={handleAdd} style={{
+          <div style={{
             display: 'flex', gap: 6, alignItems: 'center',
             background: '#F8F9FD', borderRadius: 8, border: '1px solid var(--border)',
             padding: '7px 9px', marginBottom: 10,
@@ -262,22 +266,26 @@ export default function WeekCard({
             <input
               ref={nameRef} value={newName} onChange={e => setNewName(e.target.value)}
               placeholder="Add an expense..."
-              style={{ flex: 1, fontSize: 13, padding: '5px 8px', border: '1px solid var(--border2)', borderRadius: 6, background: '#fff', color: 'var(--text)', outline: 'none' }}
+              style={{ flex: 1, fontSize: 13, padding: '6px 8px', border: '1px solid var(--border2)', borderRadius: 6, background: '#fff', color: 'var(--text)', outline: 'none' }}
             />
-            <div style={{ display: 'flex', alignItems: 'center', gap: 2, background: '#fff', border: '1px solid var(--border2)', borderRadius: 6, padding: '5px 8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 2, background: '#fff', border: '1px solid var(--border2)', borderRadius: 6, padding: '6px 8px' }}>
               <span style={{ fontSize: 13, color: 'var(--text3)' }}>$</span>
               <input
                 type="number" value={newAmt} onChange={e => setNewAmt(e.target.value)}
                 placeholder="0" min="0" step="1"
-                style={{ width: 56, fontSize: 13, border: 'none', outline: 'none', background: 'transparent', color: 'var(--text)', fontFamily: 'DM Mono, monospace' }}
+                inputMode="numeric"
+                style={{ width: 50, fontSize: 13, border: 'none', outline: 'none', background: 'transparent', color: 'var(--text)', fontFamily: 'DM Mono, monospace' }}
               />
             </div>
-            <button type="submit" style={{ background: '#3D6FE8', color: '#fff', border: 'none', borderRadius: 6, padding: '6px 14px', fontSize: 13, fontWeight: 500, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+            <button
+              onClick={handleAdd}
+              style={{ background: '#3D6FE8', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 12px', fontSize: 13, fontWeight: 500, cursor: 'pointer', whiteSpace: 'nowrap' }}
+            >
               + Add
             </button>
-          </form>
+          </div>
 
-          {/* Remaining */}
+          {/* Remaining bar */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', borderRadius: 8, background: rc.bg, border: `1px solid ${rc.border}` }}>
             <span style={{ fontSize: 13, fontWeight: 500, color: rc.fg }}>
               {rem < 0 ? 'Over budget' : rem < 100 ? 'Running tight' : 'Remaining'}
