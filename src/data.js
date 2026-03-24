@@ -1,10 +1,8 @@
 export const INCOME = 1760
 export const BONUS = 1000
 
-// Bill schedule - day of month each bill is due, used for auto-generating weeks
-// day: which paycheck week it falls in (1=1st paycheck, 2=2nd, 3=3rd, 4=4th of month)
-// For perpetual generation, bills are assigned to the nearest paycheck on/after their due date
-export const BILL_SCHEDULE = [
+// Default bill schedule - stored in localStorage and editable via Bills tab
+export const DEFAULT_BILL_SCHEDULE = [
   { id: 'b-rent',       name: 'Rent',                    amount: 1735, day: 1,  note: 'Split: ~735 first paycheck, ~1000 end-of-month bonus' },
   { id: 'b-elec',       name: 'Electricity',             amount: 250,  day: 1,  note: '' },
   { id: 'b-wifi',       name: 'Wifi',                    amount: 53,   day: 1,  note: '' },
@@ -20,12 +18,6 @@ export const BILL_SCHEDULE = [
   { id: 'b-jeep',       name: 'Jeep Payment',            amount: 529,  day: 16, note: '' },
   { id: 'b-cashapp',    name: 'CashApp',                 amount: 350,  day: 7,  note: '' },
   { id: 'b-kay',        name: 'Kay',                     amount: 100,  day: 3,  note: 'Due ~6th' },
-]
-
-// Recurring variable expenses (always present every week)
-export const WEEKLY_EXPENSES = [
-  { name: 'Weed',  amount: 100 },
-  { name: 'Food',  amount: 300 },
 ]
 
 export const INITIAL_WEEKS = [
@@ -165,9 +157,9 @@ export const INITIAL_WEEKS = [
     type: 'payoff',
     note: 'CareCredit ~$3,813 combined. After this: ~$2,723.',
     expenses: [
-      { id: 'e1', name: 'Weed',                   amount: 100  },
-      { id: 'e2', name: 'Food',                   amount: 300  },
-      { id: 'e3', name: 'Van Insurance',           amount: 55   },
+      { id: 'e1', name: 'Weed',                    amount: 100  },
+      { id: 'e2', name: 'Food',                    amount: 300  },
+      { id: 'e3', name: 'Van Insurance',            amount: 55   },
       { id: 'e4', name: 'CareCredit EXTRA PAYMENT', amount: 1000 },
     ],
   },
@@ -180,14 +172,14 @@ export const INITIAL_WEEKS = [
     bonusExpense: { name: 'Rent (remainder)', amount: 1000 },
     note: '',
     expenses: [
-      { id: 'e1', name: 'Weed',          amount: 100 },
-      { id: 'e2', name: 'Food',          amount: 300 },
-      { id: 'e3', name: 'Rent (half)',   amount: 735 },
-      { id: 'e4', name: 'Electricity',   amount: 250 },
+      { id: 'e1', name: 'Weed',           amount: 100 },
+      { id: 'e2', name: 'Food',           amount: 300 },
+      { id: 'e3', name: 'Rent (half)',    amount: 735 },
+      { id: 'e4', name: 'Electricity',    amount: 250 },
       { id: 'e5', name: 'Jeep Insurance', amount: 93  },
-      { id: 'e6', name: 'Wifi',          amount: 53  },
-      { id: 'e7', name: 'Tommy Vet',     amount: 60  },
-      { id: 'e8', name: 'Target',        amount: 50  },
+      { id: 'e6', name: 'Wifi',           amount: 53  },
+      { id: 'e7', name: 'Tommy Vet',      amount: 60  },
+      { id: 'e8', name: 'Target',         amount: 50  },
     ],
   },
   {
@@ -199,9 +191,9 @@ export const INITIAL_WEEKS = [
     expenses: [
       { id: 'e1', name: 'Weed',                    amount: 100  },
       { id: 'e2', name: 'Food',                    amount: 300  },
-      { id: 'e3', name: 'Discover (min)',           amount: 100  },
+      { id: 'e3', name: 'Discover (min)',            amount: 100  },
       { id: 'e4', name: 'CareCredit EXTRA PAYMENT', amount: 1000 },
-      { id: 'e5', name: 'Kay',                     amount: 100  },
+      { id: 'e5', name: 'Kay',                      amount: 100  },
     ],
   },
   {
@@ -213,8 +205,8 @@ export const INITIAL_WEEKS = [
     expenses: [
       { id: 'e1', name: 'Weed',                    amount: 100 },
       { id: 'e2', name: 'Food',                    amount: 300 },
-      { id: 'e3', name: 'Verizon',                 amount: 250 },
-      { id: 'e4', name: 'Jeep Payment',            amount: 528 },
+      { id: 'e3', name: 'Verizon',                  amount: 250 },
+      { id: 'e4', name: 'Jeep Payment',             amount: 528 },
       { id: 'e5', name: 'CareCredit EXTRA PAYMENT', amount: 350 },
     ],
   },
@@ -225,10 +217,10 @@ export const INITIAL_WEEKS = [
     type: 'payoff',
     note: 'CareCredit paid off. Pivot fully to Discover.',
     expenses: [
-      { id: 'e1', name: 'Weed',             amount: 100 },
-      { id: 'e2', name: 'Food',             amount: 300 },
-      { id: 'e3', name: 'Van Payment',      amount: 500 },
-      { id: 'e4', name: 'Van Insurance',    amount: 55  },
+      { id: 'e1', name: 'Weed',              amount: 100 },
+      { id: 'e2', name: 'Food',              amount: 300 },
+      { id: 'e3', name: 'Van Payment',       amount: 500 },
+      { id: 'e4', name: 'Van Insurance',     amount: 55  },
       { id: 'e5', name: 'CareCredit PAYOFF', amount: 805 },
     ],
   },
@@ -241,9 +233,9 @@ export const INITIAL_WEEKS = [
     bonusExpense: { name: 'Rent (remainder)', amount: 1000 },
     note: 'Discover paydown begins in earnest.',
     expenses: [
-      { id: 'e1', name: 'Weed',                    amount: 100 },
-      { id: 'e2', name: 'Food',                    amount: 300 },
-      { id: 'e3', name: 'Rent (half)',              amount: 735 },
+      { id: 'e1', name: 'Weed',                   amount: 100 },
+      { id: 'e2', name: 'Food',                   amount: 300 },
+      { id: 'e3', name: 'Rent (half)',             amount: 735 },
       { id: 'e4', name: 'Electricity',             amount: 250 },
       { id: 'e5', name: 'Wifi',                    amount: 53  },
       { id: 'e6', name: 'Tommy Vet',               amount: 60  },
@@ -259,23 +251,48 @@ export const INITIAL_WEEKS = [
     type: 'payoff',
     note: 'Most bills hit other weeks - throw everything at Discover.',
     expenses: [
-      { id: 'e1', name: 'Weed',                   amount: 100  },
-      { id: 'e2', name: 'Food',                   amount: 300  },
-      { id: 'e3', name: 'Discover EXTRA PAYMENT',  amount: 1260 },
+      { id: 'e1', name: 'Weed',                  amount: 100  },
+      { id: 'e2', name: 'Food',                  amount: 300  },
+      { id: 'e3', name: 'Discover EXTRA PAYMENT', amount: 1260 },
     ],
   },
 ]
 
 export const INITIAL_DEBTS = [
-  { id: 'd1', name: 'Kay',             balance: 550,   apr: '33%',     min: 100, note: '$100/mo min until done - nearly there',     priority: 0 },
+  { id: 'd1', name: 'Kay',             balance: 550,   apr: '33%',      min: 100, note: '$100/mo min until done - nearly there',     priority: 0 },
   { id: 'd2', name: 'CareCredit Lisa', balance: 2346,  apr: '0% promo', min: 90,  note: 'Deferred interest - kill before promo ends', priority: 1 },
-  { id: 'd3', name: 'CareCredit Joe',  balance: 1467,  apr: '0% promo', min: 0,   note: 'Treat as one ~$3,813 combined balance',       priority: 1 },
-  { id: 'd4', name: 'Discover',        balance: 3841,  apr: '22.5%',   min: 100, note: 'Pay to $1,000 then min while attacking Van',  priority: 2 },
-  { id: 'd5', name: 'Van Loan',        balance: 15600, apr: '~6.5%',   min: 500, note: 'Lowest rate - attack last',                   priority: 3 },
+  { id: 'd3', name: 'CareCredit Joe',  balance: 1467,  apr: '0% promo', min: 0,   note: 'Treat as one ~$3,813 combined balance',      priority: 1 },
+  { id: 'd4', name: 'Discover',        balance: 3841,  apr: '22.5%',    min: 100, note: 'Pay to $1,000 then min while attacking Van', priority: 2 },
+  { id: 'd5', name: 'Van Loan',        balance: 15600, apr: '~6.5%',    min: 500, note: 'Lowest rate - attack last',                  priority: 3 },
 ]
 
-// Given the last week's date, generate the next 4 weeks with scheduled bills
-export function generateNextMonth(lastWeekDate, existingWeekIds) {
+// IDs of weeks that are hand-crafted special weeks — never auto-updated by bill schedule changes
+export const SPECIAL_WEEK_IDS = new Set([
+  'w1','w2','w3','w4','w5','w6','w7','w8','w9','w10',
+  'w11','w12','w13','w14','w15',
+])
+
+// Given a week date string and a bill schedule, return which bills fall in that week's 7-day window
+export function getBillsForWeek(weekDateStr, billSchedule) {
+  const weekDate = new Date(weekDateStr)
+  const dom = weekDate.getDate()
+  const month = weekDate.getMonth() + 1
+  const year = weekDate.getFullYear()
+  const windowStart = dom
+  const windowEnd = dom + 6
+  const daysInMonth = new Date(year, month, 0).getDate()
+
+  return billSchedule.filter(bill => {
+    const d = bill.day
+    if (windowEnd > daysInMonth) {
+      return d >= windowStart || d <= (windowEnd - daysInMonth)
+    }
+    return d >= windowStart && d <= windowEnd
+  })
+}
+
+// Generate next 4 weeks from a given last date, using provided bill schedule
+export function generateNextMonth(lastWeekDate, billSchedule) {
   const last = new Date(lastWeekDate)
   const newWeeks = []
 
@@ -283,28 +300,11 @@ export function generateNextMonth(lastWeekDate, existingWeekIds) {
     const weekDate = new Date(last)
     weekDate.setDate(last.getDate() + 7 * i)
 
-    const dom = weekDate.getDate() // day of month for this paycheck
-    const month = weekDate.getMonth() + 1
-    const year = weekDate.getFullYear()
+    const billsThisWeek = getBillsForWeek(
+      weekDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      billSchedule
+    )
 
-    // Determine which bills fall in this paycheck's window
-    // This paycheck covers the 7-day window starting on weekDate
-    const windowStart = dom
-    const windowEnd = dom + 6
-
-    const billsThisWeek = BILL_SCHEDULE.filter(bill => {
-      const d = bill.day
-      // Handle month-wrap for window -
-      const daysInMonth = new Date(year, month, 0).getDate()
-      if (windowEnd > daysInMonth) {
-        // window wraps to next month
-        return d >= windowStart || d <= (windowEnd - daysInMonth)
-      }
-      return d >= windowStart && d <= windowEnd
-    })
-
-    // Is this an end-of-month bonus week? (last Thursday of month, roughly)
-    // Detect by checking if next week crosses into a new month
     const nextWeek = new Date(weekDate)
     nextWeek.setDate(nextWeek.getDate() + 7)
     const isEndOfMonth = nextWeek.getMonth() !== weekDate.getMonth()
@@ -312,7 +312,6 @@ export function generateNextMonth(lastWeekDate, existingWeekIds) {
     const dateStr = weekDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
     const id = 'w-gen-' + dateStr.replace(/[^a-z0-9]/gi, '-').toLowerCase()
 
-    // Build expenses - always include weekly staples
     const expenses = [
       { id: 'eg-weed-' + i, name: 'Weed', amount: 100 },
       { id: 'eg-food-' + i, name: 'Food', amount: 300 },
@@ -320,10 +319,11 @@ export function generateNextMonth(lastWeekDate, existingWeekIds) {
         id: `eg-bill-${i}-${bi}`,
         name: b.name,
         amount: b.amount,
+        billId: b.id, // track which bill this came from
       }))
     ]
 
-    // Deduplicate (weed/food already in BILL_SCHEDULE? no, but just in case)
+    // Deduplicate by name
     const seen = new Set()
     const dedupedExpenses = expenses.filter(e => {
       if (seen.has(e.name)) return false
@@ -339,6 +339,7 @@ export function generateNextMonth(lastWeekDate, existingWeekIds) {
       bonusIncome: isEndOfMonth ? BONUS : undefined,
       bonusExpense: isEndOfMonth ? { name: 'Rent (remainder)', amount: 1000 } : undefined,
       note: 'Auto-generated - edit as needed.',
+      generated: true, // mark as auto-generated so bill sync can update it
       expenses: dedupedExpenses,
     })
   }

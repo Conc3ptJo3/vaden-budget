@@ -49,17 +49,27 @@ const MONTH_ACCENT = {
 export default function App() {
   const [tab, setTab] = useState(0)
   const {
-    weeks, debts,
+    weeks, debts, billSchedule,
+    loading,
     addExpense, removeExpense, updateExpense,
     generateNextMonthWeeks, resetToDefaults,
     isArchived, toggleArchive,
     toggleChecked, isChecked,
     updateDebt,
+    updateBill, addBill, removeBill,
   } = useBudget()
 
   const [confirmReset, setConfirmReset] = useState(false)
   const [showArchived, setShowArchived] = useState(false)
   const [justGenerated, setJustGenerated] = useState(false)
+
+  if (loading) return (
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)', flexDirection: 'column', gap: 12 }}>
+      <div style={{ width: 32, height: 32, border: '3px solid var(--border)', borderTopColor: 'var(--blue)', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+      <p style={{ fontSize: 13, color: 'var(--text3)' }}>Loading your budget…</p>
+      <style>{'@keyframes spin { to { transform: rotate(360deg) } }'}</style>
+    </div>
+  )
 
   const activeWeeks   = weeks.filter(w => !isArchived(w))
   const archivedWeeks = weeks.filter(w => isArchived(w))
@@ -269,7 +279,14 @@ export default function App() {
             <DebtTracker debts={debts} onUpdateDebt={updateDebt} />
           )}
 
-          {tab === 2 && <BillSchedule />}
+          {tab === 2 && (
+            <BillSchedule
+              billSchedule={billSchedule}
+              onUpdateBill={updateBill}
+              onAddBill={addBill}
+              onRemoveBill={removeBill}
+            />
+          )}
         </div>
 
         {confirmReset && (

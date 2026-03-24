@@ -1,8 +1,6 @@
-import React from 'react'
-import { BILL_SCHEDULE } from '../data'
+import React, { useState } from 'react'
 import { fmt } from '../utils'
 
-// Group bills by which week of the month they hit
 function getDayLabel(day) {
   if (day <= 7)  return 'Week 1 (1st–7th)'
   if (day <= 14) return 'Week 2 (8th–14th)'
@@ -23,14 +21,87 @@ const WEEK_KEYS = [
   'Week 4 (22nd–31st)',
 ]
 
-export default function BillSchedule() {
-  const monthlyTotal = BILL_SCHEDULE.reduce((s, b) => s + b.amount, 0)
+function InlineEdit({ value, onSave, type = 'text', prefix = '', min, max, style = {} }) {
+  const [editing, setEditing] = useState(false)
+  const [val, setVal] = useState('')
+
+  function start(e) {
+    e.stopPropagation()
+    setVal(String(value))
+    setEditing(true)
+  }
+
+  function commit() {
+    const parsed = type === 'number' ? (parseInt(val) || 0) : val.trim()
+    if (parsed !== value) onSave(parsed)
+    setEditing(false)
+  }
+
+  if (editing) {
+    return (
+      <input
+        autoFocus
+        type={type === 'number' ? 'number' : 'text'}
+        inputMode={type === 'number' ? 'numeric' : 'text'}
+        value={val}
+        min={min}
+        max={max}
+        onChange={e => setVal(e.target.value)}
+        onBlur={commit}
+        onKeyDown={e => { if (e.key === 'Enter') commit(); if (e.key === 'Escape') setEditing(false) }}
+        style={{
+          fontSize: 13, fontFamily: type === 'number' ? 'DM Mono, monospace' : 'inherit',
+          border: '1.5px solid #3D6FE8', borderRadius: 5, padding: '2px 6px',
+          outline: 'none', background: '#EEF3FD', width: type === 'number' ? 70 : 120,
+          ...style,
+        }}
+      />
+    )
+  }
+
+  return (
+    <span
+      onClick={start}
+      title="Tap to edit"
+      style={{
+        cursor: 'pointer',
+        borderBottom: '1px dashed rgba(0,0,0,0.15)',
+        paddingBottom: 1,
+        ...style,
+      }}
+    >
+      {prefix}{value}
+    </span>
+  )
+}
+
+export default function BillSchedule({ billSchedule, onUpdateBill, onAddBill, onRemoveBill }) {
+  const [adding, setAdding] = useState(false)
+  const [newName, setNewName] = useState('')
+  const [newAmount, setNewAmount] = useState('')
+  const [newDay, setNewDay] = useState('')
+  const [confirmDelete, setConfirmDelete] = useState(null)
+
+  const monthlyTotal = billSchedule.reduce((s, b) => s + b.amount, 0)
 
   const grouped = WEEK_KEYS.map((label, i) => ({
     label,
     color: WEEK_COLORS[i],
-    bills: BILL_SCHEDULE.filter(b => getDayLabel(b.day) === label).sort((a, b) => a.day - b.day),
+    bills: billSchedule.filter(b => getDayLabel(b.day) === label).sort((a, b) => a.day - b.day),
   }))
+
+  function handleAdd(e) {
+    e.preventDefault()
+    const name = newName.trim()
+    const amount = parseInt(newAmount)
+    const day = parseInt(newDay)
+    if (!name || isNaN(amount) || amount <= 0 || isNaN(day) || day < 1 || day > 31) return
+    onAddBill(name, amount, day)
+    setNewName('')
+    setNewAmount('')
+    setNewDay('')
+    setAdding(false)
+  }
 
   return (
     <div>
@@ -38,7 +109,7 @@ export default function BillSchedule() {
       <div style={{
         background: '#1B2A4A', borderRadius: 10, padding: '14px 18px',
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        marginBottom: 20,
+        marginBottom: 12,
       }}>
         <div>
           <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: 11, marginBottom: 2 }}>Monthly scheduled bills</div>
@@ -46,14 +117,84 @@ export default function BillSchedule() {
         </div>
         <div style={{ textAlign: 'right' }}>
           <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: 11, marginBottom: 2 }}>Recurring items</div>
-          <div style={{ color: '#fff', fontSize: 22, fontWeight: 600 }}>{BILL_SCHEDULE.length}</div>
+          <div style={{ color: '#fff', fontSize: 22, fontWeight: 600 }}>{billSchedule.length}</div>
         </div>
       </div>
 
-      <p style={{ fontSize: 12, color: 'var(--text3)', marginBottom: 20, lineHeight: 1.5 }}>
-        These bills are used to auto-populate new weeks when you generate the next month.
-        Bills are assigned to the paycheck whose date falls within 7 days before the due date.
+      <p style={{ fontSize: 12, color: 'var(--text3)', marginBottom: 16, lineHeight: 1.5 }}>
+        Tap any bill's name, amount, or day to edit it. Changes instantly update all future generated paychecks.
       </p>
+
+      {/* Add bill button */}
+      {!adding ? (
+        <button
+          onClick={() => setAdding(true)}
+          style={{
+            width: '100%', padding: '10px', marginBottom: 20,
+            background: '#EEF3FD', border: '1.5px dashed #C7D7F9',
+            borderRadius: 8, fontSize: 13, fontWeight: 500,
+            color: '#3D6FE8', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+          }}
+        >
+          <span style={{ fontSize: 16 }}>+</span> Add a bill
+        </button>
+      ) : (
+        <div style={{
+          background: '#EEF3FD', border: '1.5px solid #C7D7F9',
+          borderRadius: 10, padding: '14px', marginBottom: 20,
+        }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: '#2A52B8', marginBottom: 10 }}>New Bill</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <input
+              autoFocus
+              placeholder="Bill name (e.g. Gym)"
+              value={newName}
+              onChange={e => setNewName(e.target.value)}
+              style={{
+                fontSize: 13, padding: '8px 10px', border: '1px solid #C7D7F9',
+                borderRadius: 6, outline: 'none', background: '#fff',
+              }}
+            />
+            <div style={{ display: 'flex', gap: 8 }}>
+              <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 4, background: '#fff', border: '1px solid #C7D7F9', borderRadius: 6, padding: '8px 10px' }}>
+                <span style={{ fontSize: 13, color: 'var(--text3)' }}>$</span>
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  placeholder="Amount"
+                  value={newAmount}
+                  onChange={e => setNewAmount(e.target.value)}
+                  style={{ flex: 1, fontSize: 13, border: 'none', outline: 'none', background: 'transparent', fontFamily: 'DM Mono, monospace' }}
+                />
+              </div>
+              <div style={{ width: 90, display: 'flex', alignItems: 'center', gap: 4, background: '#fff', border: '1px solid #C7D7F9', borderRadius: 6, padding: '8px 10px' }}>
+                <span style={{ fontSize: 12, color: 'var(--text3)', whiteSpace: 'nowrap' }}>Day</span>
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  placeholder="1–31"
+                  min="1"
+                  max="31"
+                  value={newDay}
+                  onChange={e => setNewDay(e.target.value)}
+                  style={{ flex: 1, fontSize: 13, border: 'none', outline: 'none', background: 'transparent', fontFamily: 'DM Mono, monospace' }}
+                />
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button
+                onClick={() => { setAdding(false); setNewName(''); setNewAmount(''); setNewDay('') }}
+                style={{ flex: 1, padding: '8px', borderRadius: 7, border: '1px solid #C7D7F9', background: '#fff', fontSize: 13, cursor: 'pointer', color: 'var(--text2)' }}
+              >Cancel</button>
+              <button
+                onClick={handleAdd}
+                style={{ flex: 2, padding: '8px', borderRadius: 7, border: 'none', background: '#3D6FE8', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+              >Add Bill</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {grouped.map(group => (
         <div key={group.label} style={{ marginBottom: 20 }}>
@@ -71,26 +212,86 @@ export default function BillSchedule() {
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
               {group.bills.map(bill => (
-                <div key={bill.id} style={{
-                  display: 'flex', alignItems: 'center',
-                  background: group.color.bg, border: `1px solid ${group.color.border}`,
-                  borderRadius: 8, padding: '9px 14px', gap: 10,
-                }}>
+                <div key={bill.id}>
                   <div style={{
-                    width: 28, height: 28, borderRadius: 7, flexShrink: 0,
-                    background: group.color.dot, color: '#fff',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 10, fontWeight: 700,
+                    display: 'flex', alignItems: 'center',
+                    background: group.color.bg, border: `1px solid ${group.color.border}`,
+                    borderRadius: 8, padding: '10px 12px', gap: 10,
+                    minHeight: 48,
                   }}>
-                    {bill.day}
+                    {/* Day badge - tap to edit */}
+                    <div style={{
+                      width: 32, height: 32, borderRadius: 8, flexShrink: 0,
+                      background: group.color.dot, color: '#fff',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 11, fontWeight: 700,
+                    }}>
+                      <InlineEdit
+                        value={bill.day}
+                        type="number"
+                        min={1}
+                        max={31}
+                        onSave={v => onUpdateBill(bill.id, 'day', v)}
+                        style={{ color: '#fff', background: 'transparent', border: '1px solid rgba(255,255,255,0.5)', width: 36, textAlign: 'center', fontSize: 11 }}
+                      />
+                    </div>
+
+                    {/* Name */}
+                    <span style={{ flex: 1, fontSize: 13, color: group.color.fg, fontWeight: 500 }}>
+                      <InlineEdit
+                        value={bill.name}
+                        onSave={v => onUpdateBill(bill.id, 'name', v)}
+                        style={{ color: group.color.fg }}
+                      />
+                    </span>
+
+                    {/* Amount */}
+                    <span style={{ fontSize: 14, fontWeight: 700, color: group.color.fg, fontFamily: 'DM Mono, monospace', flexShrink: 0 }}>
+                      $<InlineEdit
+                        value={bill.amount}
+                        type="number"
+                        onSave={v => onUpdateBill(bill.id, 'amount', v)}
+                        style={{ color: group.color.fg, fontFamily: 'DM Mono, monospace' }}
+                      />
+                    </span>
+
+                    {/* Delete */}
+                    <button
+                      onClick={() => setConfirmDelete(bill.id)}
+                      style={{
+                        background: 'none', border: 'none', cursor: 'pointer',
+                        color: 'rgba(0,0,0,0.2)', fontSize: 18, lineHeight: 1,
+                        padding: '0 4px', minWidth: 28, minHeight: 28,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        flexShrink: 0,
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.color = '#D63B3B'}
+                      onMouseLeave={e => e.currentTarget.style.color = 'rgba(0,0,0,0.2)'}
+                    >×</button>
                   </div>
-                  <span style={{ flex: 1, fontSize: 13, color: group.color.fg, fontWeight: 500 }}>{bill.name}</span>
-                  {bill.note && (
-                    <span style={{ fontSize: 11, color: '#9BA3B8', marginRight: 8, fontStyle: 'italic' }}>{bill.note}</span>
+
+                  {/* Confirm delete inline */}
+                  {confirmDelete === bill.id && (
+                    <div style={{
+                      background: '#FEF0F0', border: '1px solid #F5BCBC',
+                      borderRadius: 8, padding: '10px 12px', marginTop: 4,
+                      display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap',
+                    }}>
+                      <span style={{ fontSize: 12, color: '#D63B3B', flex: 1 }}>
+                        Remove "{bill.name}" from bill schedule and all future paychecks?
+                      </span>
+                      <div style={{ display: 'flex', gap: 6 }}>
+                        <button
+                          onClick={() => setConfirmDelete(null)}
+                          style={{ padding: '5px 12px', borderRadius: 6, border: '1px solid #F5BCBC', background: '#fff', fontSize: 12, cursor: 'pointer' }}
+                        >Cancel</button>
+                        <button
+                          onClick={() => { onRemoveBill(bill.id); setConfirmDelete(null) }}
+                          style={{ padding: '5px 12px', borderRadius: 6, border: 'none', background: '#D63B3B', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+                        >Remove</button>
+                      </div>
+                    </div>
                   )}
-                  <span style={{ fontSize: 14, fontWeight: 700, color: group.color.fg, fontFamily: 'DM Mono, monospace' }}>
-                    {fmt(bill.amount)}
-                  </span>
                 </div>
               ))}
             </div>
