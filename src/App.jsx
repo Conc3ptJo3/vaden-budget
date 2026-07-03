@@ -4,9 +4,17 @@ import WeekCard from './components/WeekCard'
 import SummaryBar from './components/SummaryBar'
 import DebtTracker from './components/DebtTracker'
 import BillSchedule from './components/BillSchedule'
+import Settings from './components/Settings'
 import PasswordGate from './components/PasswordGate'
+import { fmt } from './utils'
 
-const TABS = ['Paychecks', 'Debt', 'Bills']
+const TABS = ['Paychecks', 'Debt', 'Bills', 'Settings']
+
+const SAVE_STATUS_UI = {
+  saved:  { label: 'Saved',           dot: '#1D8A4E', fg: '#1D8A4E', bg: '#EBF8F1', border: '#A8DFC0' },
+  saving: { label: 'Saving…',         dot: '#C47B0A', fg: '#C47B0A', bg: '#FEF7E8', border: '#F6D9A0' },
+  error:  { label: 'Saved on device', dot: '#C47B0A', fg: '#9A5F05', bg: '#FEF7E8', border: '#F6D9A0' },
+}
 
 function groupByMonth(weeks) {
   const groups = []
@@ -49,14 +57,16 @@ const MONTH_ACCENT = {
 export default function App() {
   const [tab, setTab] = useState(0)
   const {
-    weeks, debts, billSchedule,
-    loading,
-    addExpense, removeExpense, updateExpense,
+    weeks, debts, billSchedule, settings,
+    loading, saveStatus,
+    addExpense, removeExpense, updateExpense, updateWeek,
     generateNextMonthWeeks, resetToDefaults,
     isArchived, toggleArchive,
     toggleChecked, isChecked,
     updateDebt, addDebt, removeDebt,
     updateBill, addBill, removeBill,
+    updateSettings,
+    exportData, importData,
   } = useBudget()
 
   const [confirmReset, setConfirmReset] = useState(false)
@@ -106,9 +116,11 @@ export default function App() {
             <WeekCard
               key={week.id}
               week={week}
+              defaultIncome={settings.weeklyIncome}
               onAddExpense={addExpense}
               onRemoveExpense={removeExpense}
               onUpdateExpense={updateExpense}
+              onUpdateWeek={updateWeek}
               onToggleChecked={toggleChecked}
               isChecked={(wid, eid) => isChecked(wid, eid)}
               isArchived={isArchived(week)}
@@ -155,16 +167,37 @@ export default function App() {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 12 }}>
               <div>
                 <h1 style={{ fontSize: 17, fontWeight: 700, color: 'var(--text)', letterSpacing: '-0.01em' }}>Budget</h1>
-                <p style={{ fontSize: 11, color: 'var(--text3)', marginTop: 1 }}>Joe & Lisa · $1,760/wk</p>
+                <p style={{ fontSize: 11, color: 'var(--text3)', marginTop: 1 }}>Joe & Lisa · {fmt(settings.weeklyIncome)}/wk</p>
               </div>
-              <button
-                onClick={() => setConfirmReset(true)}
-                style={{
-                  background: 'transparent', border: '1px solid var(--border2)',
-                  color: 'var(--text2)', borderRadius: 7, padding: '6px 14px',
-                  fontSize: 13, cursor: 'pointer',
-                }}
-              >Reset</button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                {(() => {
+                  const s = SAVE_STATUS_UI[saveStatus] || SAVE_STATUS_UI.saved
+                  return (
+                    <span
+                      title={saveStatus === 'error'
+                        ? 'Cloud sync is unreachable right now — your changes are stored safely on this device and will sync automatically.'
+                        : 'Sync status'}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 5,
+                        fontSize: 11, fontWeight: 500, padding: '4px 10px', borderRadius: 99,
+                        background: s.bg, color: s.fg, border: `1px solid ${s.border}`,
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: s.dot }} />
+                      {s.label}
+                    </span>
+                  )
+                })()}
+                <button
+                  onClick={() => setConfirmReset(true)}
+                  style={{
+                    background: 'transparent', border: '1px solid var(--border2)',
+                    color: 'var(--text2)', borderRadius: 7, padding: '6px 14px',
+                    fontSize: 13, cursor: 'pointer',
+                  }}
+                >Reset</button>
+              </div>
             </div>
             <div style={{ display: 'flex', gap: 0, marginTop: 10 }}>
               {TABS.map((t, i) => (
@@ -190,7 +223,7 @@ export default function App() {
 
           {tab === 0 && (
             <>
-              <SummaryBar weeks={weeks} />
+              <SummaryBar weeks={weeks} defaultIncome={settings.weeklyIncome} />
 
               {activeGroups.length > 0
                 ? activeGroups.map(g => renderMonthGroup(g, false))
@@ -285,6 +318,15 @@ export default function App() {
               onUpdateBill={updateBill}
               onAddBill={addBill}
               onRemoveBill={removeBill}
+            />
+          )}
+
+          {tab === 3 && (
+            <Settings
+              settings={settings}
+              onUpdateSettings={updateSettings}
+              exportData={exportData}
+              importData={importData}
             />
           )}
         </div>

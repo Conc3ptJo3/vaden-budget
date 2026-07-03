@@ -6,12 +6,17 @@ export function fmt(n) {
   return n < 0 ? '-' + s : s
 }
 
-export function getRemaining(week) {
+// Income precedence: per-week override > Settings weekly income > original default
+export function getWeekIncome(week, defaultIncome = INCOME) {
+  return week.income ?? defaultIncome
+}
+
+export function getRemaining(week, defaultIncome = INCOME) {
   const spent = week.expenses.reduce((s, e) => s + (e.amount || 0), 0)
   const bonusNet = week.bonusIncome
     ? week.bonusIncome - (week.bonusExpense?.amount || 0)
     : 0
-  return INCOME - spent + bonusNet
+  return getWeekIncome(week, defaultIncome) - spent + bonusNet
 }
 
 export function remainingColor(rem) {

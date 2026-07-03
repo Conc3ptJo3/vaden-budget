@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react'
-import { fmt, getRemaining, remainingColor, isDebtPayment, isSavings } from '../utils'
-import { INCOME } from '../data'
+import { fmt, getRemaining, getWeekIncome, remainingColor, isDebtPayment, isSavings } from '../utils'
 
 const TYPE_CONFIG = {
   bonus:   { accent: '#C47B0A', accentBorder: '#F6D9A0', badgeLabel: 'bonus month', badgeBg: '#FEF7E8', badgeFg: '#9A5F05' },
@@ -18,9 +17,11 @@ const REM_CONFIG = {
 
 export default function WeekCard({
   week,
+  defaultIncome,
   onAddExpense,
   onRemoveExpense,
   onUpdateExpense,
+  onUpdateWeek,
   onToggleChecked,
   isChecked,
   isArchived,
@@ -30,9 +31,15 @@ export default function WeekCard({
   const [newName, setNewName] = useState('')
   const [newAmt, setNewAmt] = useState('')
   const [editingId, setEditingId] = useState(null)
+  const [editingIncome, setEditingIncome] = useState(false)
+  const [incomeDraft, setIncomeDraft] = useState('')
+  const [editingBonus, setEditingBonus] = useState(null) // 'income' | 'expense' | null
+  const [bonusDraft, setBonusDraft] = useState('')
   const nameRef = useRef()
 
-  const rem = getRemaining(week)
+  const income = getWeekIncome(week, defaultIncome)
+  const hasOverride = week.income != null
+  const rem = getRemaining(week, defaultIncome)
   const remKey = remainingColor(rem)
   const tc = TYPE_CONFIG[week.type] || TYPE_CONFIG.normal
   const rc = REM_CONFIG[remKey]
@@ -140,14 +147,63 @@ export default function WeekCard({
 
       {open && (
         <div style={{ padding: '12px 14px 14px', borderTop: '1px solid var(--border)' }}>
-          {/* Income row */}
+          {/* Income row - tap the amount to edit this week's paycheck */}
           <div style={{
-            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8,
             background: '#EBF8F1', border: '1px solid #A8DFC0',
             borderRadius: 8, padding: '8px 12px', marginBottom: 8,
           }}>
-            <span style={{ fontSize: 13, fontWeight: 500, color: '#1D8A4E' }}>Paycheck Income</span>
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#1D8A4E', fontFamily: 'DM Mono, monospace' }}>{fmt(INCOME)}</span>
+            <span style={{ fontSize: 13, fontWeight: 500, color: '#1D8A4E', display: 'flex', alignItems: 'center', gap: 6 }}>
+              Paycheck Income
+              {hasOverride && (
+                <span style={{
+                  fontSize: 9, fontWeight: 600, padding: '1px 6px', borderRadius: 99,
+                  background: '#fff', color: '#1D8A4E', border: '1px solid #A8DFC0',
+                }}>custom</span>
+              )}
+            </span>
+            {editingIncome ? (
+              <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <span style={{ fontSize: 13, color: '#1D8A4E' }}>$</span>
+                <input
+                  autoFocus type="number" inputMode="decimal" value={incomeDraft}
+                  onChange={e => setIncomeDraft(e.target.value)}
+                  onBlur={() => { onUpdateWeek(week.id, 'income', incomeDraft); setEditingIncome(false) }}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') { onUpdateWeek(week.id, 'income', incomeDraft); setEditingIncome(false) }
+                    if (e.key === 'Escape') setEditingIncome(false)
+                  }}
+                  style={{
+                    width: 70, fontSize: 13, fontWeight: 700, color: '#1D8A4E',
+                    fontFamily: 'DM Mono, monospace', textAlign: 'right',
+                    border: '1.5px solid #1D8A4E', borderRadius: 5, padding: '2px 6px',
+                    background: '#fff', outline: 'none',
+                  }}
+                />
+              </span>
+            ) : (
+              <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <span
+                  onClick={() => { setIncomeDraft(String(income)); setEditingIncome(true) }}
+                  title="Tap to edit this week's paycheck"
+                  style={{
+                    fontSize: 13, fontWeight: 700, color: '#1D8A4E',
+                    fontFamily: 'DM Mono, monospace', cursor: 'pointer',
+                    borderBottom: '1px dashed #A8DFC0',
+                  }}
+                >{fmt(income)}</span>
+                {hasOverride && (
+                  <button
+                    onClick={() => onUpdateWeek(week.id, 'income', '')}
+                    title="Reset to default income"
+                    style={{
+                      background: 'none', border: 'none', color: '#1D8A4E', opacity: 0.6,
+                      cursor: 'pointer', fontSize: 14, lineHeight: 1, padding: '0 2px',
+                    }}
+                  >×</button>
+                )}
+              </span>
+            )}
           </div>
 
           {/* Expense rows */}
@@ -248,11 +304,45 @@ export default function WeekCard({
             <div style={{ marginBottom: 8 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#FEF7E8', border: '1px solid #F6D9A0', borderRadius: 8, padding: '8px 12px', marginBottom: 4 }}>
                 <span style={{ fontSize: 13, fontWeight: 500, color: '#C47B0A' }}>End-of-Month Bonus</span>
-                <span style={{ fontSize: 13, fontWeight: 700, color: '#C47B0A', fontFamily: 'DM Mono, monospace' }}>+{fmt(week.bonusIncome)}</span>
+                {editingBonus === 'income' ? (
+                  <input
+                    autoFocus type="number" inputMode="decimal" value={bonusDraft}
+                    onChange={e => setBonusDraft(e.target.value)}
+                    onBlur={() => { onUpdateWeek(week.id, 'bonusIncome', bonusDraft); setEditingBonus(null) }}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') { onUpdateWeek(week.id, 'bonusIncome', bonusDraft); setEditingBonus(null) }
+                      if (e.key === 'Escape') setEditingBonus(null)
+                    }}
+                    style={{ width: 70, fontSize: 13, fontWeight: 700, color: '#C47B0A', fontFamily: 'DM Mono, monospace', textAlign: 'right', border: '1.5px solid #C47B0A', borderRadius: 5, padding: '2px 6px', background: '#fff', outline: 'none' }}
+                  />
+                ) : (
+                  <span
+                    onClick={() => { setBonusDraft(String(week.bonusIncome)); setEditingBonus('income') }}
+                    title="Tap to edit bonus amount"
+                    style={{ fontSize: 13, fontWeight: 700, color: '#C47B0A', fontFamily: 'DM Mono, monospace', cursor: 'pointer', borderBottom: '1px dashed #F6D9A0' }}
+                  >+{fmt(week.bonusIncome)}</span>
+                )}
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 12px', background: '#F8F9FD', borderRadius: 6 }}>
                 <span style={{ fontSize: 13, color: 'var(--text2)' }}>{week.bonusExpense?.name}</span>
-                <span style={{ fontSize: 13, color: 'var(--text2)', fontFamily: 'DM Mono, monospace' }}>{fmt(week.bonusExpense?.amount || 0)}</span>
+                {editingBonus === 'expense' ? (
+                  <input
+                    autoFocus type="number" inputMode="decimal" value={bonusDraft}
+                    onChange={e => setBonusDraft(e.target.value)}
+                    onBlur={() => { onUpdateWeek(week.id, 'bonusExpenseAmount', bonusDraft); setEditingBonus(null) }}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') { onUpdateWeek(week.id, 'bonusExpenseAmount', bonusDraft); setEditingBonus(null) }
+                      if (e.key === 'Escape') setEditingBonus(null)
+                    }}
+                    style={{ width: 70, fontSize: 13, color: 'var(--text2)', fontFamily: 'DM Mono, monospace', textAlign: 'right', border: '1.5px solid #3D6FE8', borderRadius: 5, padding: '2px 6px', background: '#fff', outline: 'none' }}
+                  />
+                ) : (
+                  <span
+                    onClick={() => { setBonusDraft(String(week.bonusExpense?.amount || 0)); setEditingBonus('expense') }}
+                    title="Tap to edit"
+                    style={{ fontSize: 13, color: 'var(--text2)', fontFamily: 'DM Mono, monospace', cursor: 'pointer', borderBottom: '1px dashed var(--border2)' }}
+                  >{fmt(week.bonusExpense?.amount || 0)}</span>
+                )}
               </div>
             </div>
           )}

@@ -1,6 +1,12 @@
 export const INCOME = 1760
 export const BONUS = 1000
 
+// Editable in the Settings tab — INCOME/BONUS above are just first-run defaults
+export const DEFAULT_SETTINGS = {
+  weeklyIncome: INCOME,
+  bonusIncome: BONUS,
+}
+
 // Default bill schedule - stored in localStorage and editable via Bills tab
 export const DEFAULT_BILL_SCHEDULE = [
   { id: 'b-rent',       name: 'Rent',                    amount: 1735, day: 1,  note: 'Split: ~735 first paycheck, ~1000 end-of-month bonus' },
@@ -292,9 +298,10 @@ export function getBillsForWeek(weekDateStr, billSchedule) {
 }
 
 // Generate next 4 weeks from a given last date, using provided bill schedule
-export function generateNextMonth(lastWeekDate, billSchedule) {
+export function generateNextMonth(lastWeekDate, billSchedule, settings = DEFAULT_SETTINGS) {
   const last = new Date(lastWeekDate)
   const newWeeks = []
+  const bonus = settings.bonusIncome ?? BONUS
 
   for (let i = 1; i <= 4; i++) {
     const weekDate = new Date(last)
@@ -336,7 +343,7 @@ export function generateNextMonth(lastWeekDate, billSchedule) {
       date: dateStr,
       label: isEndOfMonth ? 'End of Month - Bonus' : '',
       type: isEndOfMonth ? 'bonus' : 'normal',
-      bonusIncome: isEndOfMonth ? BONUS : undefined,
+      bonusIncome: isEndOfMonth ? bonus : undefined,
       bonusExpense: isEndOfMonth ? { name: 'Rent (remainder)', amount: 1000 } : undefined,
       note: 'Auto-generated - edit as needed.',
       generated: true, // mark as auto-generated so bill sync can update it

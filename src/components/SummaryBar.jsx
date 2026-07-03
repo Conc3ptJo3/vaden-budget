@@ -1,16 +1,15 @@
 import React from 'react'
-import { fmt, getRemaining } from '../utils'
-import { INCOME } from '../data'
+import { fmt, getRemaining, getWeekIncome } from '../utils'
 
-export default function SummaryBar({ weeks }) {
-  const totalIn    = weeks.reduce((s, w) => s + INCOME + (w.bonusIncome || 0), 0)
+export default function SummaryBar({ weeks, defaultIncome }) {
+  const totalIn    = weeks.reduce((s, w) => s + getWeekIncome(w, defaultIncome) + (w.bonusIncome || 0), 0)
   const totalSpent = weeks.reduce((s, w) => {
     const exp = w.expenses.reduce((ss, e) => ss + (e.amount || 0), 0)
     const bon = w.bonusExpense?.amount || 0
     return s + exp + bon
   }, 0)
-  const rems     = weeks.map(getRemaining)
-  const tightest = Math.min(...rems)
+  const rems     = weeks.map(w => getRemaining(w, defaultIncome))
+  const tightest = rems.length ? Math.min(...rems) : 0
   const tightColor = tightest < 0 ? '#D63B3B' : tightest < 100 ? '#C47B0A' : '#1D8A4E'
 
   const cards = [

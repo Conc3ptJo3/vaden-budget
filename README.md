@@ -53,10 +53,19 @@ App runs at `http://localhost:5173`
 
 ## How it works
 
-- All changes save automatically to the browser's localStorage
-- Works on any device - phone, tablet, desktop
-- Changes on one device don't sync to another (no server/database)
-- Use the **Reset** button in the top-right to restore original data
+- Every change saves instantly to your device (localStorage) **and** syncs to Firebase cloud storage
+- Changes sync between devices automatically (Joe's phone ↔ Lisa's phone)
+- The "Saved / Saving… / Saved on device" pill in the top bar shows sync status
+- If you're offline, changes are kept safely on-device and sync when you reconnect
+- The app **never** overwrites your cloud data with defaults - defaults are only used the very first time the app runs
+- Use **Settings → Download backup** for an extra safety net; **Restore backup** brings it all back
+- Use the **Reset** button in the top-right to restore original data (this is the ONLY thing that resets your data)
+
+## Editing income
+
+- **Settings tab** - change the default weekly paycheck and end-of-month bonus
+- **Per week** - open any paycheck card and tap the green income amount to override just that week (tap × to go back to the default)
+- **Bonus weeks** - tap the bonus amount or the bonus expense amount to edit them
 
 ### Adding expenses
 1. Tap any paycheck row to expand it
